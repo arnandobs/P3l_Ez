@@ -1,7 +1,7 @@
 <template>
   <v-data-table
     :headers="headers"
-    :items="pegawai"
+    :items="hewan"
     :search="search"
     sort-by="nama"
     class="elevation-1"

@@ -1,7 +1,7 @@
 <template>
   <v-data-table
     :headers="headers"
-    :items="produk"
+    :items="Layanan"
     :search="search"
     sort-by="nama"
     class="elevation-1"
