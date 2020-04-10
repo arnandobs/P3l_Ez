@@ -1,7 +1,5 @@
 <template>
   <v-data-table
-    :headers="headers"
-    :items="pegawai"
     :search="search"
     sort-by="nama"
     class="elevation-1"
@@ -52,8 +50,8 @@
 
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
-              <v-btn color="blue darken-1" text @click="save">Save</v-btn>
+              <v-btn color="blue darken-1" text @click="resetForm()">Cancel</v-btn>
+              <v-btn color="blue darken-1" text @click="setForm()">Save</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -67,45 +65,26 @@
 </template>
 
 <script>
-  import { drinksRef } from'../firebase';
+  import axios from 'axios';
   export default {
     data: () => ({
-      items: ['Kasir', 'CS'],
       cek : -1,
       dialog: false,
       search:'',
-      headers: [
-        {
-          text: 'ID',
-          align: 'left',
-          sortable: false,
-          value: 'ID',
-        },
-        { text: 'Nama Suplier', value: 'Nama Suplier' },
-        { text: 'Alamat', value: 'Alamat' },
-        { text: 'Nomor Telpon', value: 'Nomor Telpon' },
-        { text: 'Actions', value: 'action', sortable: false },
-      ],
-      drinks: [],
+      suppliers:[],
+      supplier: new FormData,
       editedIndex: -1,
       editedItem: {
         nama: '',
-        role: '',
         alamat: '',
-        nomortelpon: 0,
-
+        nomortelpon: '',
       },
       defaultItem: {
         nama: '',
-        role: '',
         alamat: '',
-        nomortelpon: 0,
-
+        nomortelpon: '',
       },
     }),
-    firebase:{
-      //drinks : drinksRef
-    },
     computed: {
       formTitle () {
         return this.cek === -1 ? 'New Item' : 'Edit Item'
@@ -116,54 +95,107 @@
         val || this.close()
       },
     },
+    mounted() {
+      this.getData();
+    },
     methods: {
-      editItem (item) {
-        this.editedIndex = item['.key']
-        this.cek = 0
-        this.editedItem = Object.assign({}, item)
-        this.dialog = true
+    getData() {
+        var uri = this.$apiUrl + '/supplier'
+        this.$http.get(uri).then(response => {
+          this.suppliers  = response.data;
+          console.log(response.data)
+        })
       },
-      deleteItem (item) {
-        confirm('Are you sure you want to delete this item?') && drinksRef.child((item['.key'])).remove()
+       sendData() {
+        this.supplier.append('nama_supplier', this.editedItem.nama);
+        this.supplier.append('alamat_supplier', this.editedItem.alamat);
+        this.supplier.append('telp_supplier', this.editedItem.nomortelpon);
+        var uri = this.$apiUrl + '/supplier/create';
+        this.load = true
+        this.$http.post(uri, this.supplier, {
+          'Content-Type': 'multipart/form-data'
+        }).then(response => {
+          this.snackbar = true; //mengaktifkan snackbar               
+          this.color = 'green'; //memberi warna snackbar               
+          this.text = response.data.message; //memasukkan pesan ke snackbar               
+          this.load = false;
+          this.dialog = false
+          this.getData(); //mengambil data user               
+          this.resetForm();
+        }).catch(error => {
+          this.errors = error
+          this.snackbar = true;
+          this.text = 'Try Again';
+          this.color = 'red';
+          this.load = false;
+        })
       },
-      close () {
-        this.dialog = false
-        setTimeout(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
-        }, 300)
+       updateData() {
+       this.supplier.append('nama_supplier', this.editedItem.nama);
+        this.supplier.append('alamat_supplier', this.editedItem.alamat);
+        this.supplier.append('telp_supplier', this.editedItem.nomortelpon);
+        var uri = this.$apiUrl + '/supplier/updated'
+        this.load = true
+        this.$http.post(uri, this.supplier, {
+          'Content-Type': 'multipart/form-data'
+        }).then(response => {
+          this.snackbar = true; //mengaktifkan snackbar               
+          this.color = 'green'; //memberi warna snackbar               
+          this.text = response.data.message; //memasukkan pesan ke snackbar               
+          this.load = false;
+          this.dialog = false
+          this.getData(); //mengambil data user               
+          this.resetForm();
+          this.typeInput = 'new';
+          this.pass = false;
+        }).catch(error => {
+          this.errors = error
+          this.snackbar = true;
+          this.text = 'Try Again';
+          this.color = 'red';
+          this.load = false;
+          this.typeInput = 'new';
+          this.pass = false;
+        })
       },
-      save () {
-        if (this.cek > -1) {
-          drinksRef.child(this.editedIndex).set({
-            nama: this.editedItem.nama,
-
-            alamat: this.editedItem.alamat,
-            nomortelpon: this.editedItem.nomortelpon,
-            // protein: this.editedItem.protein
-            })
-        this.clear()
-        } else {
-          drinksRef.push(this.editedIndex).set({
-            nama: this.editedItem.nama,
-
-            alamat: this.editedItem.alamat,
-            nomortelpon: this.editedItem.nomortelpon,
-            // protein: this.editedItem.protein
-            })
-        this.clear()
+       editHandler(item) {
+        this.typeInput = 'edit';
+        this.dialog = true;
+        this.editedItem.nama = editedItem.nama;
+        this.editedItem.alamat = editedItem.alamat;
+        this.editedItem.nomortelpon = editedItem.nomortelpon;
+        this.supplier.append('id', item.id);
+       },
+     deleteData(deleteId) {
+        confirm('Are you sure you want to delete this Comic?') && 
+        this.supplier.append('id', deleteId);
+        var uri = this.$apiUrl + 'supplier/delete';
+        this.$http.post(uri, this.supplier).then(response => {
+          this.snackbar = true;
+          this.text = response.data.message;
+          this.color = 'green'
+          this.deleteDialog = false;
+          this.dialog2 = false;
+          this.getData();
+        }).catch(error => {
+          this.errors = error
+          this.snackbar = true;
+          this.text = 'Failed Delete';
+          this.color = 'red';
+        })
+      },
+   setForm() {
+       this.sendData(); 
+      },
+      resetForm() {
+        this.form = {
+          nama: "",
+          alamat: "",
+          nomortelpon: ""
         }
-        this.close()
-      },
-      clear(){
-        this.editedItem={}
-        this.editedItem.nama=''
-
-        this.editedItem.alamat=''
-        this.editedItem.nomortelpon=''
-        // this.editedItem.protein=''
-        this.cek=-1
-      },
+        this.dialog = false
+        this.dialog2 = false
+      }
     },
   }
 </script>
