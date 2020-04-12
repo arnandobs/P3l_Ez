@@ -7,6 +7,7 @@ import Suplier from '../src/components/Suplier.vue'
 import Produk from '../src/components/Produk.vue'
 import Layanan from '../src/components/Layanan.vue'
 import Hewan from '../src/components/Hewan.vue'
+import loginPage from '../src/components/loginPage.vue'
 
 Vue.use(VueRouter)
 
@@ -46,6 +47,11 @@ export default new VueRouter({
             path: '/hewan',
             name: 'hewan',
             component: Hewan
+        },
+        {
+            path: '/loginpage',
+            name: 'loginpage',
+            component: loginPage
         },
 
 

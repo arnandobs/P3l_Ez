@@ -8,12 +8,13 @@
       <v-spacer></v-spacer>
       <v-toolbar-items>
         <v-btn text router to="/"> Home </v-btn>
-        <v-btn text router to="/customer"> CRUD Customer </v-btn>
-        <v-btn text router to="/pegawai"> CRUD Pegawai </v-btn>
-        <v-btn text router to="/suplier"> CRUD Suplier </v-btn>
-        <v-btn text router to="/produk"> CRUD Produk </v-btn>
-        <v-btn text router to="/layanan"> CRUD Layanan </v-btn>
-        <v-btn text router to="/hewan"> CRUD Hewan </v-btn>
+        <v-btn text router to="/customer"> Customer </v-btn>
+        <v-btn text router to="/pegawai"> Pegawai </v-btn>
+        <v-btn text router to="/suplier"> Suplier </v-btn>
+        <v-btn text router to="/produk"> Produk </v-btn>
+        <v-btn text router to="/layanan"> Layanan </v-btn>
+        <v-btn text router to="/hewan"> Hewan </v-btn>
+        <v-btn text router to="/loginPage"> login </v-btn>
       </v-toolbar-items>
     </v-app-bar>
 
